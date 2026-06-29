@@ -25,9 +25,11 @@
 					<a class="nav-link" th:classappend="${activePage == 'transaktionen'} ? ' active'" th:href="@{/transaktionen}">Transaktionen</a>
 				</li>
 			</ul>
+			<button id="themeToggleBtn" class="btn btn-outline-light btn-sm ms-2" onclick="toggleTheme()" title="Design wechseln">
+				🌙 Dunkel
+			</button>
 		</div>
 	</div>
 </nav>
 </body>
 </html>
-
