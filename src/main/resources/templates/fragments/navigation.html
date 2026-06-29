@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav th:fragment="navigation(activePage)" class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+	<div class="container-fluid">
+		<a class="navbar-brand" th:href="@{/}">Lagerverwaltung</a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Navigation umschalten">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="mainNav">
+			<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+				<li class="nav-item">
+					<a class="nav-link" th:classappend="${activePage == 'uebersicht'} ? ' active'" th:href="@{/}">Übersicht</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" th:classappend="${activePage == 'produkte'} ? ' active'" th:href="@{/produkte}">Produkte</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" th:classappend="${activePage == 'verkaeufe'} ? ' active'" th:href="@{/verkaeufe}">Verkäufe</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" th:classappend="${activePage == 'nachbestellungen'} ? ' active'" th:href="@{/nachbestellungen}">Nachbestellungen</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" th:classappend="${activePage == 'transaktionen'} ? ' active'" th:href="@{/transaktionen}">Transaktionen</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+</nav>
+</body>
+</html>
+

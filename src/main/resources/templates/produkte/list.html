@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head>
+	<meta charset="UTF-8">
+	<title>Produkte - Lagerverwaltung</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div th:replace="~{fragments/navigation :: navigation('produkte')}"></div>
+
+<div class="container">
+	<div class="d-flex justify-content-between align-items-center mb-4">
+		<div>
+			<h1 class="h3 mb-1">Produkte</h1>
+			<p class="text-muted mb-0">Übersicht aller angelegten Produkte.</p>
+		</div>
+		<a class="btn btn-primary" th:href="@{/produkte/neu}">Neues Produkt</a>
+	</div>
+
+	<div class="alert alert-success" th:if="${successMessage}" th:text="${successMessage}"></div>
+	<div class="alert alert-danger" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+	<div class="alert alert-warning" th:if="${#lists.size(niedrigBestandProdukte) > 0}">
+		<strong>Niedriger Bestand:</strong> Einige Produkte liegen bereits unter oder am Mindestbestand.
+	</div>
+
+	<form method="get" th:action="@{/produkte}" class="card shadow-sm mb-4">
+		<div class="card-body">
+			<div class="row g-2">
+				<div class="col-md-3">
+					<input type="text" class="form-control" name="name" placeholder="Filter: Name" th:value="${name}">
+				</div>
+				<div class="col-md-2">
+					<select class="form-select" name="kategorie">
+						<option value="">Kategorie (alle)</option>
+						<option th:each="kat : ${kategorien}" th:value="${kat}" th:text="${kat}" th:selected="${kat == kategorie}"></option>
+					</select>
+				</div>
+				<div class="col-md-1">
+					<input type="number" class="form-control" name="bestandVon" placeholder="Bestand >=" th:value="${bestandVon}">
+				</div>
+				<div class="col-md-1">
+					<input type="number" class="form-control" name="bestandBis" placeholder="Bestand <=" th:value="${bestandBis}">
+				</div>
+				<div class="col-md-2">
+					<input type="number" step="0.01" min="0" class="form-control" name="preisVon" placeholder="Preis >=" th:value="${preisVon}">
+				</div>
+				<div class="col-md-2">
+					<input type="number" step="0.01" min="0" class="form-control" name="preisBis" placeholder="Preis <=" th:value="${preisBis}">
+				</div>
+				<div class="col-md-2">
+					<select class="form-select" name="sortierung">
+						<option value="name" th:selected="${sortierung == 'name'}">Sort: Name</option>
+						<option value="kategorie" th:selected="${sortierung == 'kategorie'}">Sort: Kategorie</option>
+						<option value="bestand_asc" th:selected="${sortierung == 'bestand_asc'}">Sort: Bestand aufsteigend</option>
+						<option value="bestand_desc" th:selected="${sortierung == 'bestand_desc'}">Sort: Bestand absteigend</option>
+						<option value="preis_asc" th:selected="${sortierung == 'preis_asc'}">Sort: Preis aufsteigend</option>
+						<option value="preis_desc" th:selected="${sortierung == 'preis_desc'}">Sort: Preis absteigend</option>
+					</select>
+				</div>
+				<div class="col-12 d-flex gap-2">
+					<button type="submit" class="btn btn-outline-primary btn-sm">Filtern</button>
+					<a th:href="@{/produkte}" class="btn btn-outline-secondary btn-sm">Zurücksetzen</a>
+				</div>
+			</div>
+		</div>
+	</form>
+
+	<div class="card shadow-sm">
+		<div class="card-body">
+			<div class="table-responsive">
+				<table class="table align-middle">
+					<thead>
+					<tr>
+						<th>Bild</th>
+						<th>Name</th>
+						<th>Kategorie</th>
+						<th>Beschreibung</th>
+						<th>Preis</th>
+						<th>Bestand</th>
+						<th>Mindestbestand</th>
+						<th>Status</th>
+						<th></th>
+					</tr>
+					</thead>
+					<tbody>
+					<tr th:each="produkt : ${produkte}">
+						<td>
+							<img th:src="${produkt.bildUrl != null ? produkt.bildUrl : '/img/produkt-placeholder.svg'}"
+								onerror="this.onerror=null;this.src='/img/produkt-placeholder.svg';"
+								alt="Produktbild"
+								style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid #dee2e6;">
+						</td>
+						<td th:text="${produkt.name}">Produktname</td>
+						<td th:text="${produkt.kategorie}">Kategorie</td>
+						<td th:text="${produkt.beschreibung}">Beschreibung</td>
+						<td th:text="${produkt.preis} + ' €'">0 €</td>
+						<td th:text="${produkt.bestand}">0</td>
+						<td th:text="${produkt.mindestbestand}">0</td>
+						<td>
+							<span class="badge text-bg-warning" th:if="${produkt.istNachzuliefern()}">Nachzuliefern</span>
+							<span class="badge text-bg-danger" th:if="${produkt.istNiedrigBestand()}">Niedrig</span>
+							<span class="badge text-bg-success" th:if="${!produkt.istNiedrigBestand() and !produkt.istNachzuliefern()}">OK</span>
+						</td>
+						<td>
+							<div class="d-flex gap-1">
+								<a class="btn btn-sm btn-outline-primary" th:href="@{/produkte/{id}/bearbeiten(id=${produkt.id})}">Bearbeiten</a>
+								<form th:if="${!nichtLoeschbareProduktIds.contains(produkt.id)}" th:action="@{/produkte/{id}/loeschen(id=${produkt.id})}" method="post" class="d-inline">
+									<button type="submit" class="btn btn-sm btn-outline-danger">Löschen</button>
+								</form>
+								<button th:if="${nichtLoeschbareProduktIds.contains(produkt.id)}" type="button" class="btn btn-sm btn-outline-secondary" disabled>Historie vorhanden</button>
+							</div>
+						</td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
